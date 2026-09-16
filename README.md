@@ -92,3 +92,13 @@ personuppgifter hör i ett lokalt repo, inte här.
 
 `todoist-triage` flyttades hit från `~/bin` med historiken bevarad
 (subtree-merge), så `git log` når hela vägen tillbaka till dess första commit.
+
+## Licens
+
+MIT — se [LICENSE](LICENSE).
+
+## Status
+
+Personliga verktyg, publicerade för att arkitekturen kan vara användbar för
+andra som kör samma stack. De löser mina problem först; inga garantier, inget
+supportåtagande. Issues och PR:er är välkomna men kan bli liggande.
