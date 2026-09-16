@@ -16,6 +16,19 @@ Nyast överst. Per-verktygs-historik ligger kvar i respektive mapp
 - **`.gitignore` lades in FÖRE någon kod**, så `.env` med Todoist-token aldrig
   kunde råka spåras.
 
+### dt-pane — andra källan
+
+- **`klang` tillagd som känd källa.** Klang.ai exponerar en MCP (OAuth/PKCE) med
+  `list-conversations` + `get-conversation`, där den senare ger AI-summering och
+  varje källas fulla transkript.
+- **Kontraktet höll utan en rad ändrad logik** — bara ett namn i `KANDA_KALLOR`
+  och en rad i tabellen. Uppslagningen hittade Klang-filen på både källnamn och
+  Klangs eget id, eftersom den redan läser hela frontmattern. Det var precis
+  poängen: dt-pane läser filer, inte MCP:er.
+- **`--list` krävde valvroten** trots att den bara läser cachen, så den som inte
+  satt `DT_VAULT` fick ett fel om något kommandot inte rör. Kontrollen flyttad
+  till där den faktiskt behövs.
+
 ### dt-pane — cachekontraktet
 
 - **`CACHE-CONTRACT.md`:** formatet på `~/.cache/dt-pane/` är nu deklarerat, så

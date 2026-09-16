@@ -15,12 +15,16 @@ set -euo pipefail
 # Valvroten. Sätt DT_VAULT i din miljö (t.ex. i ~/.zshrc) — defaulten här är
 # bara en gissning på var en iCloud-synkad Obsidian-vault brukar ligga.
 VAULT="${DT_VAULT:-$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault}"
-if [[ ! -d $VAULT ]]; then
+# Valvroten kontrolleras först när den faktiskt behövs (--list och --help läser
+# bara cachen). Kravet låg tidigare överst och gjorde --list oanvändbart för den
+# som inte satt DT_VAULT — ett fel om något som kommandot inte rör.
+krav_vault() {
+  [[ -d $VAULT ]] && return 0
   echo "dt-pane: hittar ingen valvrot på '$VAULT'." >&2
   echo "         Sätt DT_VAULT till din vault, t.ex.:" >&2
   echo "         export DT_VAULT=\"\$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/MittValv\"" >&2
   exit 2
-fi
+}
 CACHE="${DT_CACHE:-$HOME/.cache/dt-pane}"
 mkdir -p "$CACHE"
 
@@ -30,7 +34,7 @@ usage() { sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 # källagnostisk — vilken transkript-MCP som helst kan skriva hit så länge
 # frontmattern följer kontraktet. Listan finns för att en TRASIG producent
 # ska synas i stället för att tyst leverera dåliga filer.
-KANDA_KALLOR="deep-thought"
+KANDA_KALLOR="deep-thought klang"
 
 kalla_for() { sed -n '1,/^---$/p' "$1" | sed -n 's/^källa:[[:space:]]*//p' | head -1; }
 # Normalisera innan jämförelse: "Deep Thought", "deep thought" och
@@ -116,6 +120,7 @@ fi
 
 PROMPT="/transcript ${DELTAGARE:+$DELTAGARE }'$KALLA'"
 
+krav_vault
 CLAUDE_ARGV=()
 [[ $SKIP -eq 1 ]] && CLAUDE_ARGV+=(--dangerously-skip-permissions)
 CLAUDE_ARGV+=(${EXTRA[@]+"${EXTRA[@]}"})

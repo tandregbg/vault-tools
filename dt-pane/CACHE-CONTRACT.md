@@ -65,6 +65,7 @@ det är. Talarprefix (`Namn: replik`) om varianten är `named`.
 | `källa:` | Verktyg som ger texten |
 |---|---|
 | `deep-thought` | `get_source_transcript` (MCP, nås bara inifrån en Claude-session) |
+| `klang` | `get-conversation` (MCP, OAuth). `list-conversations` först för att hitta id:t — `get-conversation` ger AI-summering + varje källas fulla transkript |
 
 Värdet normaliseras före jämförelse — `Deep Thought`, `deep thought` och
 `deep-thought` är samma producent. Kontraktet ska inte vara en stavningsfälla.
