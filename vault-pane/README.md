@@ -21,6 +21,29 @@ Du (i skalet):      vault-pane webapp anna+erik
 Du skriver alltså **aldrig** ett DOC-id till vault-pane om du inte vill — men det
 funkar, eftersom matchningen läser frontmattern.
 
+## Vilken skill ska bearbeta?
+
+`/transcript` är default, men det är inte alltid rätt. **Samma fil, olika
+efterbehandling:**
+
+| Skill | När | Vad den gör utöver summering |
+|---|---|---|
+| **`/transcript`** *(default)* | ett samtal, en intervju, en lunch | routar till kontaktmapp, sparar råmaterial, extraherar insikter |
+| **`/ops`** `--ops` | ett **projektmöte**, en standup, ett veckomöte | routar till projekt-/mötesmapp, propagerar beslut och åtgärder till `_tasks.yaml`, uppdaterar CHANGELOG och rolling plans |
+| `/preparation` | `--skill preparation` | inför ett möte, inte efter |
+
+```bash
+vault-pane webapp --ops              # projektmötet -> /ops
+vault-pane lunch anna+erik           # samtalet    -> /transcript
+vault-pane kund --skill preparation  # valfri skill
+```
+
+Miljö: `VAULT_PANE_SKILL` sätter default.
+
+**Varför det spelar roll:** ett projektmöte som går genom `/transcript` blir en
+summering utan ägare och deadlines. `/ops` är det som gör mötet till åtgärder på
+rätt ställe. Väljer du fel hamnar besluten i en fil ingen läser.
+
 ## Uppslagning
 
 Matchar i två steg, senaste först: **filnamn**, sedan **frontmattern**

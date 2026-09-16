@@ -5,6 +5,7 @@
 #   vault-pane lunch anna+erik        med deltagare till skillen
 #   vault-pane --list                 vad ligger i cachen
 #   vault-pane 260916_114054          matchar även filnamn/titel/DOC-id
+#   vault-pane möte --ops          projektmöte -> /ops i stället för /transcript
 #   vault-pane lunch -n               torrkörning: visa träff + prompt, öppna inget
 #   vault-pane lunch --safe           kräv behörighetsfrågor (annars skippas de)
 #
@@ -62,6 +63,10 @@ lista() {
 [[ ${1:-} == --list || ${1:-} == -l ]] && { lista; exit 0; }
 
 MONSTER=""; DELTAGARE=""; EXTRA=(); HEADLESS=0; TORR=0; RIKTNING="right"
+# Vilken core-skill som ska bearbeta filen. /transcript är default (ett samtal),
+# men ett PROJEKTMÖTE hör till /ops — den routar till projektmappen, propagerar
+# beslut och åtgärder och uppdaterar CHANGELOG. Samma fil, olika efterbehandling.
+SKILL="${VAULT_PANE_SKILL:-transcript}"
 # Panen körs utan behörighetsfrågor. Medvetet val: /transcript skriver många
 # filer (summering, _insights.yaml, CHANGELOG, .transcripts/) och en fråga per
 # skrivning gör panen obrukbar. Sätt VAULT_PANE_SAFE=1 eller --safe för att kräva frågor.
@@ -73,6 +78,8 @@ while [[ $# -gt 0 ]]; do
     -n|--dry-run) TORR=1; shift ;;
     --safe) SKIP=0; shift ;;
     --direction) RIKTNING="$2"; shift 2 ;;
+    --skill) SKILL="${2#/}"; shift 2 ;;
+    --ops) SKILL="ops"; shift ;;
     *) if   [[ -z $MONSTER   ]]; then MONSTER="$1"
        elif [[ -z $DELTAGARE ]]; then DELTAGARE="$1"
        else EXTRA+=("$1"); fi; shift ;;
@@ -118,7 +125,7 @@ elif [[ " $KANDA_KALLOR " != *" $(norm_kalla "$KALLTAG") "* ]]; then
   echo "         Lägg till den i KANDA_KALLOR + CACHE-CONTRACT.md. Kör ändå." >&2
 fi
 
-PROMPT="/transcript ${DELTAGARE:+$DELTAGARE }'$KALLA'"
+PROMPT="/$SKILL ${DELTAGARE:+$DELTAGARE }'$KALLA'"
 
 krav_vault
 CLAUDE_ARGV=()
@@ -128,6 +135,7 @@ CLAUDE_ARGV+=(${EXTRA[@]+"${EXTRA[@]}"})
 if [[ $TORR -eq 1 ]]; then
   echo "träff : $(basename "$KALLA")"
   echo "källa : ${KALLTAG:-(saknas)}"
+  echo "skill : /$SKILL"
   echo "pwd   : $VAULT"
   echo "claude: claude ${CLAUDE_ARGV[*]-}"
   echo "prompt: $PROMPT"

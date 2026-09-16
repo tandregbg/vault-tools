@@ -16,6 +16,15 @@ Nyast överst. Per-verktygs-historik ligger kvar i respektive mapp
 - **`.gitignore` lades in FÖRE någon kod**, så `.env` med Todoist-token aldrig
   kunde råka spåras.
 
+### vault-pane — skill-routing
+
+- **`--ops` / `--skill <namn>`.** Verktyget antog `/transcript`, men ett
+  **projektmöte** hör till `/ops`: den propagerar beslut och åtgärder till
+  `_tasks.yaml`, uppdaterar CHANGELOG och rolling plans, och routar till
+  projektmappen. Ett projektmöte genom `/transcript` blir en summering utan
+  ägare och deadlines.
+- Default är fortfarande `/transcript`; `VAULT_PANE_SKILL` sätter en annan.
+
 ### dt-pane → vault-pane
 
 Namnbyte. `dt-` läste som Deep Thought, men verktyget blev källagnostiskt i och
