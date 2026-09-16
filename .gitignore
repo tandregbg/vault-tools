@@ -1,0 +1,8 @@
+# Hemligheter — aldrig i repot. Tokens bor i .env (chmod 600) eller 1Password.
+.env
+.env.*
+!.env.example
+*.bak
+__pycache__/
+*.pyc
+.DS_Store
