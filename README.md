@@ -20,20 +20,15 @@ läggs till här:
 implementationen utan i vad en skill *är*: instruktioner som laddas IN i en
 session som redan körs. Allt som behöver starta något hör hemma här.
 
-## Vad som hör hit — och inte
+## Vad som hör hit
 
-Testet är **vad verktyget integrerar mot**, inte om det råkar läsa valvet.
+Ett verktyg hör hit när det **integrerar mot något andra också kör** — Todoist,
+Deep Thought, Claude Code, cmux — och skulle vara användbart för någon med
+samma stack efter att sökvägen bytts ut.
 
-| | hör hit | hör inte hit |
-|---|---|---|
-| Integrerar mot | Deep Thought, Claude Code, core-skills, Todoist, cmux | maskinparken, nätet, tmux, VPN |
-| Vore användbart för | någon annan med samma stack, efter byte av sökväg | ingen annan — det är en miljö, inte en integration |
-| Valvet är | arbetsmaterialet | råkar vara där konfigen bor |
-
-Därför ligger `align`, `lxc-helper`, `sync-hosts` och `tmux-save` **inte** här,
-trots att de läser `_infrastructure/vm-inventory.yaml`. De beskriver en
-personlig maskinpark. `todoist-triage` och `dt-pane` beskriver integrationer
-mot verktyg andra också kör.
+Att ett skript läser valvet räcker inte. Verktyg som beskriver en enskild
+maskinpark eller ett enskilt nät är en *miljö*, inte en integration, och hör
+hemma någon annanstans.
 
 ## Verktygen
 
@@ -76,22 +71,6 @@ rimlig default:
 ```bash
 VAULT="${DT_VAULT:-$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tomas}"
 ```
-
-## Vad som medvetet INTE ligger här
-
-`vault-machines` bröts ut till ett eget lokalt repo. `machines.txt` är en
-komplett karta över en intern infrastruktur — kundnamn kopplade till IP-adresser
-och driftdetaljer om andras system. Det kan inte ligga publikt, och enligt
-inträdeskravet ovan beskriver det dessutom en **maskinpark**, inte en
-integration.
-
-Samma princip gäller framåt: allt som bär kundnamn, interna adresser eller
-personuppgifter hör i ett lokalt repo, inte här.
-
-## Historik
-
-`todoist-triage` flyttades hit från `~/bin` med historiken bevarad
-(subtree-merge), så `git log` når hela vägen tillbaka till dess första commit.
 
 ## Licens
 
