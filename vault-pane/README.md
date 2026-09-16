@@ -1,24 +1,24 @@
-# dt-pane
+# vault-pane
 
 Öppnar ett Deep Thought-transkript i en ny cmux-pane och kör `/transcript` där.
 
 ```bash
-dt-pane lunch anna+erik
+vault-pane lunch anna+erik
 ```
 
 ## Arbetsdelningen
 
-**dt-pane hämtar inte själv.** MCP-servern är kopplad till Claude-sessionen,
+**vault-pane hämtar inte själv.** MCP-servern är kopplad till Claude-sessionen,
 inte till skalet — ett skript kan inte anropa `get_source_transcript`.
 
 ```
 Du (i en session):  "hämta veckans projektmöte till dt-cachen"
-      ↓  sessionen skriver ~/.cache/dt-pane/YYMMDD-<slug>.md med frontmatter
-Du (i skalet):      dt-pane webapp anna+erik
+      ↓  sessionen skriver ~/.cache/vault-pane/YYMMDD-<slug>.md med frontmatter
+Du (i skalet):      vault-pane webapp anna+erik
       ↓  ny pane, cd till valvroten, claude, /transcript
 ```
 
-Du skriver alltså **aldrig** ett DOC-id till dt-pane om du inte vill — men det
+Du skriver alltså **aldrig** ett DOC-id till vault-pane om du inte vill — men det
 funkar, eftersom matchningen läser frontmattern.
 
 ## Uppslagning
@@ -29,10 +29,10 @@ Matchar i två steg, senaste först: **filnamn**, sedan **frontmattern**
 Alla dessa hittar samma fil:
 
 ```bash
-dt-pane lunch
-dt-pane 260916_114054
-dt-pane DOC_20260916_124609_266f3a0d_ae9fba9f
-dt-pane T1K
+vault-pane lunch
+vault-pane 260916_114054
+vault-pane DOC_20260916_124609_266f3a0d_ae9fba9f
+vault-pane T1K
 ```
 
 ## Flaggor
@@ -46,8 +46,8 @@ dt-pane T1K
 | `--direction` | `left\|right\|up\|down` (default `right`) |
 | `--` | allt efter skickas vidare till `claude` |
 
-Miljö: `DT_VAULT` (valvrot) · `DT_CACHE` (default `~/.cache/dt-pane`) ·
-`DT_SAFE=1` (samma som `--safe`).
+Miljö: `VAULT_ROOT` (valvrot) · `VAULT_PANE_CACHE` (default `~/.cache/vault-pane`) ·
+`VAULT_PANE_SAFE=1` (samma som `--safe`).
 
 ## Två designval
 
@@ -76,11 +76,11 @@ den körningen: panen kan skriva var som helst i valvet. Därav `--safe`.
 
 Formatet är ett **kontrakt**: [`CACHE-CONTRACT.md`](CACHE-CONTRACT.md). Vilken
 transkriptkälla som helst kan fylla cachen så länge frontmattern följer det —
-dt-pane läser filer, inte en viss MCP.
+vault-pane läser filer, inte en viss MCP.
 
 `källa:` är enda fältet som valideras. Okänd eller saknad källa **varnar men
 stoppar inte**, så en trasig producent syns i stället för att tyst leverera
 dåliga filer.
 
-`~/.cache/dt-pane/*.md`. Rå transportyta — råmaterialet hamnar ändå i
+`~/.cache/vault-pane/*.md`. Rå transportyta — råmaterialet hamnar ändå i
 `.transcripts/` när `/transcript` kört, så cachen kan sopas fritt.

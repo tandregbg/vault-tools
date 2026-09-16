@@ -35,7 +35,7 @@ hemma någon annanstans.
 | Mapp | Vad | Kör |
 |---|---|---|
 | **`todoist-triage/`** | Tvåvägs-sync `_tasks.yaml` ↔ Todoist, plus genererade vyer | `sync.py sync --yes` |
-| **`dt-pane/`** | Transkript → ny cmux-pane som kör `/transcript`. Källagnostisk via [`CACHE-CONTRACT.md`](dt-pane/CACHE-CONTRACT.md) | `dt-pane lunch anna+erik` |
+| **`vault-pane/`** | Transkript → ny cmux-pane som kör `/transcript`. Källagnostisk via [`CACHE-CONTRACT.md`](vault-pane/CACHE-CONTRACT.md) | `vault-pane lunch anna+erik` |
 
 Varje mapp har egen README med detaljerna.
 
@@ -44,14 +44,14 @@ Varje mapp har egen README med detaljerna.
 Skripten körs från `~/bin`. Symlinka in dem:
 
 ```bash
-ln -sf ~/repos/vault-tools/dt-pane/dt-pane ~/bin/dt-pane
+ln -sf ~/repos/vault-tools/vault-pane/vault-pane ~/bin/vault-pane
 ln -sf ~/repos/vault-tools/todoist-triage ~/bin/todoist-triage
 ```
 
 Sätt valvroten i din miljö — repots default är en gissning:
 
 ```bash
-export DT_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/MittValv"
+export VAULT_ROOT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/MittValv"
 ```
 
 ## Hemligheter
@@ -69,7 +69,7 @@ maskinen, där användarnamnet är ett annat. Nya skript ska läsa valvroten ur 
 rimlig default:
 
 ```bash
-VAULT="${DT_VAULT:-$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tomas}"
+VAULT="${VAULT_ROOT:-$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tomas}"
 ```
 
 ## Licens

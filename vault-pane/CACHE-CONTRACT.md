@@ -1,13 +1,13 @@
 # Cachekontraktet
 
-Formatet på filerna i `~/.cache/dt-pane/`. **Vilken transkriptkälla som helst
-kan fylla cachen** — dt-pane läser filer, inte en viss MCP.
+Formatet på filerna i `~/.cache/vault-pane/`. **Vilken transkriptkälla som helst
+kan fylla cachen** — vault-pane läser filer, inte en viss MCP.
 
 ## Varför ett kontrakt
 
-Kedjan är `källa → cache → dt-pane → claude → /transcript`. Varje led kan bytas
+Kedjan är `källa → cache → vault-pane → claude → /transcript`. Varje led kan bytas
 oberoende, och cachen är den enda kopplingen mellan dem. Så länge en producent
-skriver enligt detta format fungerar dt-pane utan en rad ändrad kod.
+skriver enligt detta format fungerar vault-pane utan en rad ändrad kod.
 
 Skillen (`/transcript`) tar **en fil** och frågar aldrig varifrån den kom. Den
 kan därför inte vara basen för det här — den laddas först när sessionen redan
@@ -24,7 +24,7 @@ men bör bära det du faktiskt söker på — `260916-samtal-anna-erik-lunch.md`
 
 ## Frontmatter
 
-Hela frontmattern är **sökbar** — dt-pane matchar först på filnamn, sedan på
+Hela frontmattern är **sökbar** — vault-pane matchar först på filnamn, sedan på
 vilket fält som helst här. Därför är ett rikt huvud inte pynt utan funktion.
 
 ```yaml
@@ -45,10 +45,10 @@ kontext: projekt-x
 
 | Fält | Krav | Varför |
 |---|---|---|
-| **`källa`** | **ja** | Enda fältet dt-pane *validerar*. Okänd källa varnar (`--list` visar den, körning fortsätter) så en trasig producent syns i stället för att tyst ge dåliga filer |
-| `document_id` | bör | Gör `dt-pane DOC_...` möjligt. Formatet är källans ensak — Deep Thought har två olika |
+| **`källa`** | **ja** | Enda fältet vault-pane *validerar*. Okänd källa varnar (`--list` visar den, körning fortsätter) så en trasig producent syns i stället för att tyst ge dåliga filer |
+| `document_id` | bör | Gör `vault-pane DOC_...` möjligt. Formatet är källans ensak — Deep Thought har två olika |
 | `filnamn` | bör | Man minns oftare `260916_114054` än en titel |
-| `titel`, `talare`, `kontext` | bör | Det man faktiskt söker på: `dt-pane lunch`, `dt-pane projekt-x` |
+| `titel`, `talare`, `kontext` | bör | Det man faktiskt söker på: `vault-pane lunch`, `vault-pane projekt-x` |
 | `variant` | om relevant | `named` har talarnamn, `diarized` bara `SPEAKER_NN`. Avgör om summeringen kan säga vem som sa vad |
 | `inspelad`, `längd` | frivilligt | Läsbarhet i `--list` |
 
@@ -71,15 +71,15 @@ Värdet normaliseras före jämförelse — `Deep Thought`, `deep thought` och
 `deep-thought` är samma producent. Kontraktet ska inte vara en stavningsfälla.
 
 Lägg till rader här när en ny producent tillkommer. Listan är dokumentation för
-människor och sessioner — dt-pane varnar bara för värden som inte står här.
+människor och sessioner — vault-pane varnar bara för värden som inte står här.
 
 ## Att skriva en ny producent
 
 1. Hämta transkriptet, hur som helst
-2. Skriv `~/.cache/dt-pane/YYMMDD-<slug>.md` med frontmattern ovan
+2. Skriv `~/.cache/vault-pane/YYMMDD-<slug>.md` med frontmattern ovan
 3. Sätt `källa:` till ett namn som står i tabellen — lägg till raden om den saknas
 
-Inget mer. dt-pane behöver inte veta att du finns.
+Inget mer. vault-pane behöver inte veta att du finns.
 
 ## Livslängd
 

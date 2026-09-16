@@ -9,14 +9,24 @@ Nyast överst. Per-verktygs-historik ligger kvar i respektive mapp
 
 - **`vault-tools` samlar integrationslagret.** `todoist-triage` och
   `vault-machines` flyttades in från `~/bin` med **historiken bevarad**
-  (subtree-merge). `dt-pane` tillkom som nytt verktyg.
+  (subtree-merge). `vault-pane` tillkom som nytt verktyg.
 - **Gränsen mot core-skills skriven i README:** skills körs *inuti* en session,
   vault-tools körs *mot* valvet utifrån. En skill kan inte starta en session —
   den är instruktioner som laddas IN i en som redan kör.
 - **`.gitignore` lades in FÖRE någon kod**, så `.env` med Todoist-token aldrig
   kunde råka spåras.
 
-### dt-pane — andra källan
+### dt-pane → vault-pane
+
+Namnbyte. `dt-` läste som Deep Thought, men verktyget blev källagnostiskt i och
+med cachekontraktet — det tar transkript från vilken MCP som helst och kör dem
+genom core-skills. Namnet beskriver nu rörelsen, inte den första källan.
+
+Miljövariablerna följde med: `DT_VAULT` → `VAULT_ROOT`, `DT_CACHE` →
+`VAULT_PANE_CACHE`, `DT_SAFE` → `VAULT_PANE_SAFE`. Cachen flyttade till
+`~/.cache/vault-pane`.
+
+### vault-pane — andra källan
 
 - **`klang` tillagd som känd källa.** Klang.ai exponerar en MCP (OAuth/PKCE) med
   `list-conversations` + `get-conversation`, där den senare ger AI-summering och
@@ -24,16 +34,16 @@ Nyast överst. Per-verktygs-historik ligger kvar i respektive mapp
 - **Kontraktet höll utan en rad ändrad logik** — bara ett namn i `KANDA_KALLOR`
   och en rad i tabellen. Uppslagningen hittade Klang-filen på både källnamn och
   Klangs eget id, eftersom den redan läser hela frontmattern. Det var precis
-  poängen: dt-pane läser filer, inte MCP:er.
+  poängen: vault-pane läser filer, inte MCP:er.
 - **`--list` krävde valvroten** trots att den bara läser cachen, så den som inte
-  satt `DT_VAULT` fick ett fel om något kommandot inte rör. Kontrollen flyttad
+  satt `VAULT_ROOT` fick ett fel om något kommandot inte rör. Kontrollen flyttad
   till där den faktiskt behövs.
 
-### dt-pane — cachekontraktet
+### vault-pane — cachekontraktet
 
-- **`CACHE-CONTRACT.md`:** formatet på `~/.cache/dt-pane/` är nu deklarerat, så
+- **`CACHE-CONTRACT.md`:** formatet på `~/.cache/vault-pane/` är nu deklarerat, så
   **vilken transkriptkälla som helst kan fylla cachen**. Kedjan
-  `källa → cache → dt-pane → claude → /transcript` kan bytas ledvis; cachen är
+  `källa → cache → vault-pane → claude → /transcript` kan bytas ledvis; cachen är
   enda kopplingen.
 - **`källa:` är enda fältet som valideras**, och varnar utan att stoppa — en
   trasig producent ska synas, men filen kan vara användbar ändå. Värdet
@@ -43,18 +53,18 @@ Nyast överst. Per-verktygs-historik ligger kvar i respektive mapp
 - **Core-skills kan inte vara basen för detta:** skillen tar EN fil och laddas
   först när sessionen redan kört igång. Kontraktet hör hos konsumenten av cachen.
 
-### dt-pane — nytt
+### vault-pane — nytt
 
-- Slår upp ett Deep Thought-transkript i `~/.cache/dt-pane` på filnamn **eller**
+- Slår upp ett Deep Thought-transkript i `~/.cache/vault-pane` på filnamn **eller**
   frontmatter (DOC-id, originalfilnamn, titel, talare, kontext) och öppnar en
   cmux-pane som kör `/transcript [deltagare] <fil>`.
 - **Hämtar inte själv.** MCP:n är kopplad till Claude-sessionen, inte till
-  skalet — en session skriver transkriptet till cachen, dt-pane öppnar det.
+  skalet — en session skriver transkriptet till cachen, vault-pane öppnar det.
 - PWD sätts till **valvroten**, inte filens mapp, så skillens rules-walk
   (Step 0.5, `_insights.yaml`-kedjan) hittar hela kedjan.
 - Kör med `--dangerously-skip-permissions` som default: `/transcript` skriver
   många filer och en fråga per skrivning gör panen obrukbar. `--safe` eller
-  `DT_SAFE=1` kräver frågor.
+  `VAULT_PANE_SAFE=1` kräver frågor.
 
 **Fyra fel som kostade tid och är värda att minnas:**
 

@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
-# dt-pane — öppna ett Deep Thought-transkript i en cmux-pane och kör /transcript.
+# vault-pane — öppna ett Deep Thought-transkript i en cmux-pane och kör /transcript.
 #
-#   dt-pane lunch                  senaste träffen på "lunch" i cachen
-#   dt-pane lunch anna+erik        med deltagare till skillen
-#   dt-pane --list                 vad ligger i cachen
-#   dt-pane 260916_114054          matchar även filnamn/titel/DOC-id
-#   dt-pane lunch -n               torrkörning: visa träff + prompt, öppna inget
-#   dt-pane lunch --safe           kräv behörighetsfrågor (annars skippas de)
+#   vault-pane lunch                  senaste träffen på "lunch" i cachen
+#   vault-pane lunch anna+erik        med deltagare till skillen
+#   vault-pane --list                 vad ligger i cachen
+#   vault-pane 260916_114054          matchar även filnamn/titel/DOC-id
+#   vault-pane lunch -n               torrkörning: visa träff + prompt, öppna inget
+#   vault-pane lunch --safe           kräv behörighetsfrågor (annars skippas de)
 #
 # Panen står kvar efteråt (claude startas interaktivt, inte headless).
 # PWD sätts till valvroten så skillens rules-walk hittar _insights.yaml-kedjan.
 set -euo pipefail
 
-# Valvroten. Sätt DT_VAULT i din miljö (t.ex. i ~/.zshrc) — defaulten här är
+# Valvroten. Sätt VAULT_ROOT i din miljö (t.ex. i ~/.zshrc) — defaulten här är
 # bara en gissning på var en iCloud-synkad Obsidian-vault brukar ligga.
-VAULT="${DT_VAULT:-$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault}"
+VAULT="${VAULT_ROOT:-$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault}"
 # Valvroten kontrolleras först när den faktiskt behövs (--list och --help läser
 # bara cachen). Kravet låg tidigare överst och gjorde --list oanvändbart för den
-# som inte satt DT_VAULT — ett fel om något som kommandot inte rör.
+# som inte satt VAULT_ROOT — ett fel om något som kommandot inte rör.
 krav_vault() {
   [[ -d $VAULT ]] && return 0
-  echo "dt-pane: hittar ingen valvrot på '$VAULT'." >&2
-  echo "         Sätt DT_VAULT till din vault, t.ex.:" >&2
-  echo "         export DT_VAULT=\"\$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/MittValv\"" >&2
+  echo "vault-pane: hittar ingen valvrot på '$VAULT'." >&2
+  echo "         Sätt VAULT_ROOT till din vault, t.ex.:" >&2
+  echo "         export VAULT_ROOT=\"\$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/MittValv\"" >&2
   exit 2
 }
-CACHE="${DT_CACHE:-$HOME/.cache/dt-pane}"
+CACHE="${VAULT_PANE_CACHE:-$HOME/.cache/vault-pane}"
 mkdir -p "$CACHE"
 
 usage() { sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
@@ -64,8 +64,8 @@ lista() {
 MONSTER=""; DELTAGARE=""; EXTRA=(); HEADLESS=0; TORR=0; RIKTNING="right"
 # Panen körs utan behörighetsfrågor. Medvetet val: /transcript skriver många
 # filer (summering, _insights.yaml, CHANGELOG, .transcripts/) och en fråga per
-# skrivning gör panen obrukbar. Sätt DT_SAFE=1 eller --safe för att kräva frågor.
-SKIP="${DT_SAFE:+0}"; SKIP="${SKIP:-1}"
+# skrivning gör panen obrukbar. Sätt VAULT_PANE_SAFE=1 eller --safe för att kräva frågor.
+SKIP="${VAULT_PANE_SAFE:+0}"; SKIP="${SKIP:-1}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --) shift; EXTRA+=("$@"); break ;;
@@ -98,7 +98,7 @@ else
     done
   fi
   if [[ -z $KALLA ]]; then
-    echo "dt-pane: ingen träff på '$MONSTER' i cachen." >&2
+    echo "vault-pane: ingen träff på '$MONSTER' i cachen." >&2
     echo >&2; lista >&2
     echo >&2
     echo "Nytt transkript hämtas av Claude-sessionen (MCP:n nås inte från skalet):" >&2
@@ -111,10 +111,10 @@ fi
 # filen kan vara fullt användbar ändå, men en trasig producent ska synas.
 KALLTAG="$(kalla_for "$KALLA")"
 if [[ -z $KALLTAG ]]; then
-  echo "dt-pane: varning — '$(basename "$KALLA")' saknar 'källa:' i frontmattern." >&2
+  echo "vault-pane: varning — '$(basename "$KALLA")' saknar 'källa:' i frontmattern." >&2
   echo "         Se CACHE-CONTRACT.md. Kör ändå." >&2
 elif [[ " $KANDA_KALLOR " != *" $(norm_kalla "$KALLTAG") "* ]]; then
-  echo "dt-pane: varning — okänd källa '$KALLTAG'." >&2
+  echo "vault-pane: varning — okänd källa '$KALLTAG'." >&2
   echo "         Lägg till den i KANDA_KALLOR + CACHE-CONTRACT.md. Kör ändå." >&2
 fi
 
@@ -138,20 +138,20 @@ if [[ $HEADLESS -eq 1 ]]; then
   cd "$VAULT"; exec claude -p "$PROMPT" ${CLAUDE_ARGV[@]+"${CLAUDE_ARGV[@]}"}
 fi
 
-command -v cmux >/dev/null || { echo "dt-pane: cmux saknas i PATH." >&2; exit 3; }
+command -v cmux >/dev/null || { echo "vault-pane: cmux saknas i PATH." >&2; exit 3; }
 
 cmux new-pane --type terminal --direction "$RIKTNING" --focus true >/dev/null
 PANE="$(cmux list-panes 2>/dev/null | grep -o 'pane:[0-9]*' | tail -1)"
-[[ -z $PANE ]] && { echo "dt-pane: fick ingen pane-ref från cmux." >&2; exit 3; }
+[[ -z $PANE ]] && { echo "vault-pane: fick ingen pane-ref från cmux." >&2; exit 3; }
 
 # cmux send tar --surface, INTE --pane. Med --pane blev flaggan tolkad som
 # text och ekades ut i terminalen i stället för att köras. Slå upp panens
 # surface och skicka dit.
 YTA="$(cmux list-pane-surfaces --pane "$PANE" 2>/dev/null | grep -o 'surface:[0-9]*' | head -1)"
-[[ -z $YTA ]] && { echo "dt-pane: hittade ingen surface för $PANE." >&2; exit 3; }
+[[ -z $YTA ]] && { echo "vault-pane: hittade ingen surface för $PANE." >&2; exit 3; }
 
 cmux send --surface "$YTA" "cd $(printf %q "$VAULT") && claude ${CLAUDE_ARGV[*]-}"'\n' >/dev/null 2>&1
 sleep 4
 cmux send --surface "$YTA" "$PROMPT"'\n' >/dev/null 2>&1
 
-echo "dt-pane: $PANE/$YTA · ${DELTAGARE:-inga deltagare} · $(basename "$KALLA" .md)"
+echo "vault-pane: $PANE/$YTA · ${DELTAGARE:-inga deltagare} · $(basename "$KALLA" .md)"
